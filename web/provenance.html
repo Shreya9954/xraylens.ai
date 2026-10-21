@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRayLens Provenance</title>
+<meta name="description" content="Where every pixel and weight in XRayLens came from: model card audit, data lineage, licences and citations.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0f12'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23ffb547' stroke-width='3'/%3E%3Cpath d='M16 7a9 9 0 0 1 0 18z' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <a class="brand" href="./">XRayLens</a>
+  <a href="./">Examine</a>
+  <a href="reliability.html">Reliability</a>
+  <a href="provenance.html" aria-current="page">Provenance</a>
+</nav>
+<div class="runhead" aria-hidden="true">XRAYLENS · RESEARCH PROTOTYPE · NOT A DIAGNOSTIC DEVICE</div>
+
+<main class="wrap">
+  <header class="mast">
+    <div class="kicker">Provenance · where every pixel and weight came from</div>
+    <h1 class="title sm">Read the <em>label</em><br>before the result</h1>
+  </header>
+
+  <section>
+    <div class="sec"><div class="num">01</div><h2>The model</h2><p class="sub">We did not train this network. We audited it.</p></div>
+    <div class="cols c-6-5">
+      <div>
+        <p><b><a href="https://huggingface.co/Purino/resnet50-chest-xray-pneumonia">Purino/resnet50-chest-xray-pneumonia</a></b>, pinned at revision <code>da2a7724bfa5</code>. It is a torchvision ResNet-50 (ImageNet V2 initialisation) fine-tuned for two classes, NORMAL and PNEUMONIA, at 320 × 320 px with aspect-preserving black padding.</p>
+        <p>Notes from the model card, quoted or paraphrased:</p>
+        <ul>
+          <li>Final weights were <b>refit on all 5,824 cleaned Kermany images</b>, including the original test folder. <i>“It has no independent test evaluation.”</i></li>
+          <li>Its reported metrics (ROC-AUC 0.998) come from a <b>selection checkpoint</b> on an internal split, and <i>“do not evaluate <code>model.safetensors</code>.”</i></li>
+          <li>Source images are from <b>young children at one centre</b>. Performance on adults, other hospitals and other diseases is unknown.</li>
+          <li>Patient grouping was inferred from filenames. <i>“Near-duplicate or undocumented patient overlap may remain.”</i></li>
+          <li><i>“Softmax outputs are not clinically calibrated probabilities.”</i></li>
+          <li>Research only. Not a clinical diagnostic device.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="note cool"><p><b>Why this model?</b> Its card is unusually candid about training scope, leakage and limits. That made it a good subject for an audit. Each warning on the left is something XRayLens measures rather than repeats.</p></div>
+        <div class="stats one">
+          <div><div class="k">Parameters</div><div class="v">23.5 M</div><div class="ci">ResNet-50 + 2-way head</div></div>
+          <div><div class="k">Input</div><div class="v">320 px</div><div class="ci">RGB, letterboxed</div></div>
+          <div><div class="k">Threshold</div><div class="v">0.5</div><div class="ci">fixed, from config.json</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">02</div><h2>How it runs in your browser</h2><p class="sub">No server sees your image. The model runs on your device.</p></div>
+    <div class="cols c-6-5">
+      <div>
+        <ol>
+          <li>The page loads a 66 KB <b>ONNX graph</b> exported from the PyTorch model. Besides the logits, it outputs class-activation maps. For this architecture (last conv block → global average pool → linear), Grad-CAM at the last block equals CAM with the classes’ weight differences exactly, so no gradients are needed in the browser.</li>
+          <li>The graph contains <b>no weights</b>. Every tensor points at a byte range inside the model author’s original <code>model.safetensors</code>, which your browser downloads <b>directly from Hugging Face</b> at a pinned commit (94 MB, cached after the first visit). We never re-host the weights.</li>
+          <li><b>ONNX Runtime Web</b> runs the network with WebAssembly, using several threads where the browser allows.</li>
+          <li>Preprocessing is a <b>line-by-line port of Pillow</b>: the fixed-point resampling kernels, Python’s banker’s rounding in the letterbox, the 601-2 luma transform and the single-precision blend. On 60 test images the model input is byte-identical to PyTorch’s, and scores agree to within 5×10⁻⁶ (see Reliability §06).</li>
+        </ol>
+      </div>
+      <div class="note"><p><b>Precomputed versus live.</b> Gallery cases open with results computed in PyTorch, so the page is useful before the weights finish downloading. Once the live model is ready, the page re-runs the case in your browser and prints both scores. The randomisation sanity check needs to re-initialise weights, which the fixed graph can’t do, so it is precomputed for gallery cases and for 120 evaluation images.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">03</div><h2>The data</h2><p class="sub">Four cohorts, used for different questions. Only redistributable images are served by this site.</p></div>
+    <div class="table-wrap"><table>
+      <tr><th>Cohort</th><th>Who</th><th>Used here for</th><th>Licence / terms</th><th>On this site?</th></tr>
+      <tr><td><b>Kermany et al. 2018</b>, test folder (624)</td><td>Children aged 1–5, Guangzhou</td><td>Showing the leakage gap. <b>Seen in training.</b></td><td>CC BY 4.0</td><td>3 gallery images</td></tr>
+      <tr><td><b>RSNA Pneumonia Detection Challenge 2018</b>, sample of 600</td><td>Adults, NIH ChestX-ray14</td><td>External sensitivity and specificity, robustness</td><td>RSNA/Kaggle challenge terms, non-commercial research</td><td><b>No.</b> IDs and scores only</td></tr>
+      <tr><td><b>Montgomery County CXR set</b> (138)</td><td>Adults, USA, TB programme</td><td>Adult specificity, Grad-CAM vs lung masks</td><td>NLM public release, citation required</td><td>Gallery images + masks</td></tr>
+      <tr><td><b>Shenzhen CXR set</b>, sample of 100</td><td>Adults, China, TB programme</td><td>Out-of-scope disease probe</td><td>NLM public release, citation required</td><td>1 gallery image</td></tr>
+    </table></div>
+    <p>Samples are drawn with a fixed seed (<code>20261020</code>), and every source is pinned to a Hugging Face commit. One dataset we <b>rejected</b>: a Hugging Face set labelled as African patients turned out to be Kermany images under a new name (identical <code>IM-xxxx-xxxx</code> filenames). Testing on it would have repeated the leakage trap.</p>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">04</div><h2>What XRayLens adds</h2><p class="sub">Our contribution is the instrument, not the classifier.</p></div>
+    <ol>
+      <li><b>Grad-CAM from logits, not softmax.</b> This model’s softmax saturates, so softmax gradients vanish exactly where the model is most confident.</li>
+      <li><b>Area-normalised attribution.</b> Heat on lungs, the frame and padding is always reported against each region’s pixel share.</li>
+      <li><b>Randomisation sanity check</b> (Adebayo et al. 2018), per case and across 120 images.</li>
+      <li><b>Perturbation stress lab.</b> Eight anatomy-preserving edits per image, plus population flip rates.</li>
+      <li><b>An evaluation that refuses the easy number.</b> Leakage made visible, external adult cohorts, Wilson and bootstrap 95% intervals, calibration and a live threshold explorer.</li>
+      <li><b>Private by construction.</b> Uploaded images never leave the device, and the browser pipeline is verified against PyTorch.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">05</div><h2>Citations</h2></div>
+    <ul>
+      <li>Kermany D, Goldbaum M, Cai W, et al. Identifying medical diagnoses and treatable diseases by image-based deep learning. <i>Cell</i> 2018;172(5):1122–1131. Data: Mendeley Data, doi:10.17632/rscbjbr9sj.2 (CC BY 4.0).</li>
+      <li>Jaeger S, Candemir S, Antani S, et al. Two public chest X-ray datasets for computer-aided screening of pulmonary diseases. <i>Quant Imaging Med Surg</i> 2014;4(6):475–477.</li>
+      <li>Shih G, Wu CC, Halabi SS, et al. Augmenting the National Institutes of Health chest radiograph dataset with expert annotations of possible pneumonia. <i>Radiol Artif Intell</i> 2019;1(1):e180041.</li>
+      <li>Selvaraju RR, et al. Grad-CAM: visual explanations from deep networks via gradient-based localization. <i>ICCV</i> 2017.</li>
+      <li>Zhou B, et al. Learning deep features for discriminative localization (CAM). <i>CVPR</i> 2016.</li>
+      <li>Adebayo J, et al. Sanity checks for saliency maps. <i>NeurIPS</i> 2018.</li>
+      <li>Zech JR, et al. Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs. <i>PLOS Medicine</i> 2018;15(11):e1002683.</li>
+    </ul>
+    <p class="fig">Third-party software served by this site: ONNX Runtime Web 1.26.0 (MIT, Microsoft), dicom-parser 1.8.21 (MIT), Vega 5 / Vega-Lite 5 (BSD-3-Clause, from jsDelivr).</p>
+  </section>
+
+  <footer class="foot">XRayLens AI is an educational research prototype. It is not a medical device, and nothing it displays is medical advice.</footer>
+</main>
+</body>
+</html>

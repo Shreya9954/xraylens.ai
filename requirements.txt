@@ -1,0 +1,14 @@
+# Tested on Python 3.12, macOS arm64 (MPS) and CPU.
+streamlit==1.66.0
+torch==2.14.1
+torchvision==0.29.1
+safetensors==0.8.0
+huggingface_hub==2.2.0
+pillow==12.3.0
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
+altair==6.3.0
+pydicom==3.0.2

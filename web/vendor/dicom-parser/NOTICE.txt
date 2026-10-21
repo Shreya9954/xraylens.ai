@@ -1,0 +1,2 @@
+dicom-parser 1.8.21 (MIT License, Chris Hafey and contributors)
+https://github.com/cornerstonejs/dicomParser

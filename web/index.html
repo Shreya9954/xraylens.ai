@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRayLens AI</title>
+<meta name="description" content="An explainable-AI laboratory for chest radiographs: a real ResNet-50 pneumonia classifier running in your browser, with Grad-CAM, stress tests and an honest evaluation.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0f12'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23ffb547' stroke-width='3'/%3E%3Cpath d='M16 7a9 9 0 0 1 0 18z' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<script src="https://cdn.jsdelivr.net/npm/vega@5.30.0/build/vega.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.21.0/build/vega-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.26.0/build/vega-embed.min.js"></script>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <a class="brand" href="./">XRayLens</a>
+  <a href="./" aria-current="page">Examine</a>
+  <a href="reliability.html">Reliability</a>
+  <a href="provenance.html">Provenance</a>
+  <div class="status" id="model-status" aria-live="polite">Live model · <b>not loaded</b><span class="bar"><i></i></span></div>
+</nav>
+<div class="runhead" aria-hidden="true">XRAYLENS · RESEARCH PROTOTYPE · NOT A DIAGNOSTIC DEVICE</div>
+
+<main class="wrap">
+  <header class="mast">
+    <div class="kicker">An explainable-AI laboratory for chest radiographs</div>
+    <h1 class="title">XRay<em>Lens</em></h1>
+    <p class="dek">A pneumonia classifier gives you an answer. This lab shows how it got there, how far you can trust it, and where it breaks.</p>
+    <div class="stamp">Research &amp; education only<br>Not for diagnosis</div>
+  </header>
+
+  <section aria-labelledby="s1">
+    <div class="sec"><div class="num">01</div><h2 id="s1">Choose a radiograph</h2>
+      <p class="sub">Start with the curated contact sheet. Each case was picked from the evaluation to teach one thing. You can also upload a public, de-identified research image. It is analysed on your device and never uploaded anywhere.</p></div>
+    <div class="cols c-8-3">
+      <div class="sheet" id="sheet"></div>
+      <div>
+        <span class="label">Upload an image</span>
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept=".png,.jpg,.jpeg,.bmp,.webp,.dcm,.dicom,image/png,image/jpeg,image/bmp,image/webp,application/dicom">
+          <span class="big">↥ Choose or drop a file</span>
+          <small>PNG, JPEG, BMP, WebP or uncompressed DICOM · up to 20 MB · processed in your browser</small>
+        </label>
+        <p class="fig">Use only public, de-identified research images. Do not upload real patient records. DICOM tags other than modality and view are ignored.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="error"></div>
+
+  <section aria-labelledby="s2">
+    <div class="sec"><div class="num">02</div><h2 id="s2">Read the model’s output</h2>
+      <p class="sub">The model returns two softmax scores that sum to 1. A fixed threshold of 0.5 turns them into a label.</p></div>
+    <div class="cols c-5-6">
+      <div><canvas class="frame" id="input-canvas" width="320" height="320" role="img" aria-label="Model input, letterboxed to 320 by 320 pixels"></canvas><div class="fig" id="input-cap"></div></div>
+      <div><div id="readout"></div><div id="context"></div></div>
+    </div>
+    <div id="story"></div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="sec"><div class="num">03</div><h2 id="s3">See where the model looked</h2>
+      <p class="sub">Grad-CAM weights the last convolutional block’s feature maps by how strongly they push the chosen class’s logit up. Bright regions influenced the output. That does not make them correct.</p></div>
+    <div class="cols c-3-2" style="margin-bottom:1rem">
+      <div><span class="label">Explain which class</span><div class="radio" id="cls"></div></div>
+      <div><span class="label">Heatmap opacity · <span class="range-val" id="alpha-val">0.50</span></span><input type="range" id="alpha" min="0" max="0.9" step="0.05" value="0.5" aria-label="Heatmap opacity"></div>
+    </div>
+    <div class="cols c-4-4-3">
+      <div><canvas class="frame" id="cam-a"></canvas><div class="fig"><b>A</b> · input as seen by the model</div></div>
+      <div><canvas class="frame" id="cam-b" role="img" aria-label="Grad-CAM heatmap overlay"></canvas><div class="fig" id="cam-cap"></div></div>
+      <div><div id="attr"></div><p class="fig">×1.00 is what a uniform, uninformative map would score. Heat on padding or the frame (text markers, tubes, collimator edges) is a shortcut warning.</p></div>
+    </div>
+    <div id="attr-note"></div>
+    <details id="rand">
+      <summary>Sanity check: does this map depend on what the model learned?</summary>
+      <div class="inner" id="rand-body"></div>
+    </details>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="sec"><div class="num">04</div><h2 id="s4">Stress-test this image</h2>
+      <p class="sub">Eight edits that do not change the anatomy a radiologist would read. A trustworthy model’s score should hardly move.</p></div>
+    <div id="stress-head"></div>
+    <div class="chart" id="stress-chart"></div>
+    <div class="thumbs" id="thumbs"></div>
+    <div id="stress-note"></div>
+  </section>
+
+  <p style="margin-top:2rem"><a href="reliability.html">Next: how reliable is this model across 1,462 images? →</a></p>
+  <footer class="foot">XRayLens AI · Model: <a href="https://huggingface.co/Purino/resnet50-chest-xray-pneumonia">Purino/resnet50-chest-xray-pneumonia</a> (research only), weights fetched from Hugging Face and run locally with ONNX Runtime Web · Gallery images: Kermany et al. 2018 (CC BY 4.0) and the NLM Montgomery/Shenzhen sets · Outputs are not medical advice.</footer>
+</main>
+<script type="module" src="js/examine.js"></script>
+</body>
+</html>

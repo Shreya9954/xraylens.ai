@@ -1,0 +1,198 @@
+[
+  {
+    "id": "textbook-normal",
+    "file": "textbook-normal.png",
+    "thumb": "textbook-normal_thumb.jpg",
+    "mask": "",
+    "title": "Textbook normal",
+    "subtitle": "Child \u00b7 Kermany",
+    "seen_in_training": true,
+    "story": "This child\u2019s radiograph is part of the model\u2019s <b>training set</b>. A near-zero score here shows memory, not skill. Compare it with the adult normals in this sheet.",
+    "tags": [
+      [
+        "seen in training",
+        "#e05c35"
+      ],
+      [
+        "label: normal",
+        "#93a1a6"
+      ]
+    ],
+    "source": "kermany_test:test[40]",
+    "licence": "CC BY 4.0, Kermany et al. 2018",
+    "label": "Normal"
+  },
+  {
+    "id": "textbook-pneumonia",
+    "file": "textbook-pneumonia.png",
+    "thumb": "textbook-pneumonia_thumb.jpg",
+    "mask": "",
+    "title": "Textbook pneumonia",
+    "subtitle": "Child \u00b7 Kermany",
+    "seen_in_training": true,
+    "story": "Labelled pneumonia, <b>seen in training</b>, scored with saturated confidence. The heatmap sits on the anatomy, so this is the explanation everyone hopes for. Now look at the next case.",
+    "tags": [
+      [
+        "seen in training",
+        "#e05c35"
+      ],
+      [
+        "label: pneumonia",
+        "#93a1a6"
+      ]
+    ],
+    "source": "kermany_test:test[494]",
+    "licence": "CC BY 4.0, Kermany et al. 2018",
+    "label": "Pneumonia"
+  },
+  {
+    "id": "right-answer-wrong-place",
+    "file": "right-answer-wrong-place.png",
+    "thumb": "right-answer-wrong-place_thumb.jpg",
+    "mask": "",
+    "title": "Right answer, wrong place?",
+    "subtitle": "Child \u00b7 Kermany",
+    "seen_in_training": true,
+    "story": "Correct label, but most Grad-CAM mass falls on the image frame and padding rather than the lungs. A right answer from the wrong evidence is how shortcut learning hides inside high accuracy.",
+    "tags": [
+      [
+        "seen in training",
+        "#e05c35"
+      ],
+      [
+        "label: pneumonia",
+        "#93a1a6"
+      ]
+    ],
+    "source": "kermany_test:test[511]",
+    "licence": "CC BY 4.0, Kermany et al. 2018",
+    "label": "Pneumonia"
+  },
+  {
+    "id": "adult-false-alarm",
+    "file": "adult-false-alarm.png",
+    "thumb": "adult-false-alarm_thumb.jpg",
+    "mask": "assets/gallery/adult-false-alarm_lungs.png",
+    "title": "Healthy adult, flagged",
+    "subtitle": "Adult \u00b7 Montgomery",
+    "seen_in_training": false,
+    "story": "An adult radiograph read as <b>normal</b> by radiologists, scored as pneumonia with near-certainty. The teal outline is the radiologist\u2019s lung mask. Note where the heat peaks: on the burned-in <b>\u201cPA ERECT\u201d</b> marker, not the lungs. In step 04, the tighter crop that removes the marker turns the verdict to NORMAL. This is shortcut learning caught in the act.",
+    "tags": [
+      [
+        "external \u00b7 never seen",
+        "#38a596"
+      ],
+      [
+        "label: normal",
+        "#93a1a6"
+      ],
+      [
+        "radiologist lung mask",
+        "#38a596"
+      ]
+    ],
+    "source": "montgomery:MCUCXR_0080_0",
+    "licence": "NLM public release, Jaeger et al. 2014",
+    "label": "Normal"
+  },
+  {
+    "id": "adult-true-normal",
+    "file": "adult-true-normal.png",
+    "thumb": "adult-true-normal_thumb.jpg",
+    "mask": "assets/gallery/adult-true-normal_lungs.png",
+    "title": "Healthy adult, cleared",
+    "subtitle": "Adult \u00b7 Montgomery",
+    "seen_in_training": false,
+    "story": "A normal adult the model gets right. Use the stress test below to see how easily that verdict flips.",
+    "tags": [
+      [
+        "external \u00b7 never seen",
+        "#38a596"
+      ],
+      [
+        "label: normal",
+        "#93a1a6"
+      ],
+      [
+        "radiologist lung mask",
+        "#38a596"
+      ]
+    ],
+    "source": "montgomery:MCUCXR_0035_0",
+    "licence": "NLM public release, Jaeger et al. 2014",
+    "label": "Normal"
+  },
+  {
+    "id": "tb-flagged",
+    "file": "tb-flagged.png",
+    "thumb": "tb-flagged_thumb.jpg",
+    "mask": "assets/gallery/tb-flagged_lungs.png",
+    "title": "Tuberculosis, called pneumonia",
+    "subtitle": "Adult \u00b7 Montgomery",
+    "seen_in_training": false,
+    "story": "Tuberculosis is a disease this model was never taught. It can only answer NORMAL or PNEUMONIA, so abnormal lungs of any cause get pushed into one of two boxes.",
+    "tags": [
+      [
+        "external \u00b7 never seen",
+        "#38a596"
+      ],
+      [
+        "label: tuberculosis",
+        "#93a1a6"
+      ],
+      [
+        "radiologist lung mask",
+        "#38a596"
+      ]
+    ],
+    "source": "montgomery:MCUCXR_0166_1",
+    "licence": "NLM public release, Jaeger et al. 2014",
+    "label": "Tuberculosis"
+  },
+  {
+    "id": "tb-missed",
+    "file": "tb-missed.png",
+    "thumb": "tb-missed_thumb.jpg",
+    "mask": "",
+    "title": "Tuberculosis, called normal",
+    "subtitle": "Adult \u00b7 Shenzhen",
+    "seen_in_training": false,
+    "story": "The same disease from another hospital, now scored <b>normal</b> with confidence. A binary classifier has no way to say \u201csomething else is wrong\u201d.",
+    "tags": [
+      [
+        "external \u00b7 never seen",
+        "#38a596"
+      ],
+      [
+        "label: tuberculosis",
+        "#93a1a6"
+      ]
+    ],
+    "source": "shenzhen:CHNCXR_0509_1",
+    "licence": "NLM public release, Jaeger et al. 2014",
+    "label": "Tuberculosis"
+  },
+  {
+    "id": "not-an-xray",
+    "file": "not-an-xray.png",
+    "thumb": "not-an-xray_thumb.jpg",
+    "mask": "",
+    "title": "Not an X-ray",
+    "subtitle": "Synthetic pattern",
+    "seen_in_training": false,
+    "story": "Rings and rectangles, no anatomy at all. The model still answers <b>PNEUMONIA</b> (0.9611). A classifier has no \u201cI don\u2019t know\u201d output. Recognising an unsuitable input is the job of the system around it.",
+    "tags": [
+      [
+        "out of domain",
+        "#8b7ff0"
+      ],
+      [
+        "generated",
+        "#93a1a6"
+      ]
+    ],
+    "source": "generated",
+    "licence": "Generated by scripts/build_gallery.py",
+    "label": "n/a"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "images": 60,
+  "browser": {
+    "threads": 8,
+    "isolated": true,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36"
+  },
+  "letterbox_identical": 60,
+  "perturbations_identical": {
+    "hflip": 60,
+    "rotate10": 60,
+    "crop": 60,
+    "contrast": 60,
+    "invert": 60
+  },
+  "warnings_identical": 60,
+  "labels_identical": 60,
+  "max_abs_score_diff": 4.926045980901961e-06,
+  "median_abs_score_diff": 1.5073814930749614e-08,
+  "max_abs_cam_diff": 1.2760566711428334e-05
+}

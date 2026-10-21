@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# Model weights are downloaded from the Hub at runtime (94 MB; licence set by the model author)
+/models/
+# Evaluation images are fetched by scripts/fetch_eval_data.py; RSNA terms forbid redistribution
+/data/

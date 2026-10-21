@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XRayLens AI: Project Description</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: Letter; margin: 0; }
+  :root { --ink:#14181b; --paper:#f6f2e8; --muted:#5d686c; --amber:#b86e00; --coral:#c2451f; --teal:#1f7f72; --rule:#14181b2e; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background: var(--paper); color: var(--ink); }
+  body { width: 8.5in; height: 11in; padding: .48in .55in .4in; font: 9.6pt/1.42 'Newsreader', Georgia, serif; overflow: hidden;
+    background: repeating-linear-gradient(0deg, #14181b08 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, #14181b08 0 1px, transparent 1px 24px), var(--paper); }
+  .kick { font: 600 6.6pt/1 'JetBrains Mono', monospace; letter-spacing: .24em; text-transform: uppercase; color: var(--amber); }
+  h1 { font: 400 46pt/.85 'Instrument Serif', serif; margin: .08in 0 0; letter-spacing: -.02em; }
+  h1 em { color: var(--amber); }
+  .dek { font-style: italic; font-size: 11.2pt; margin: .1in 0 0 1.35in; max-width: 4.3in; color: #333b3e; }
+  .stamp { position: absolute; right: 0; top: .06in; transform: rotate(-4deg); border: 1.2pt solid var(--coral); color: var(--coral);
+    font: 600 6.4pt/1.3 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; padding: .06in .1in; text-align: center; }
+  .top { border-bottom: 1.2pt solid var(--ink); padding-bottom: .12in; margin-bottom: .14in; position: relative; }
+  h2 { font: 400 15pt/1 'Instrument Serif', serif; margin: 0 0 .05in; display: flex; gap: .09in; align-items: baseline; }
+  h2 span { font: italic 400 15pt 'Instrument Serif', serif; color: var(--amber); }
+  p { margin: 0 0 .07in; }
+  .grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: .22in; }
+  ul { margin: 0 0 .06in; padding-left: .15in; } li { margin: 0 0 .03in; }
+  b { font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font: 7.4pt/1.3 'JetBrains Mono', monospace; margin: .04in 0 .06in; }
+  th { text-align: left; font-weight: 600; border-bottom: 1pt solid var(--ink); padding: .03in .04in .03in 0; color: var(--muted); letter-spacing: .04em; }
+  td { border-bottom: .5pt solid var(--rule); padding: .035in .04in .035in 0; vertical-align: top; }
+  .big { font: 400 26pt/1 'Instrument Serif', serif; }
+  .strike { text-decoration: line-through; text-decoration-color: var(--coral); text-decoration-thickness: 2pt; }
+  .hero { display: grid; grid-template-columns: 1fr 1fr; border-top: 1pt solid var(--ink); border-bottom: 1pt solid var(--ink); margin: .04in 0 .1in; }
+  .hero > div { padding: .07in .1in .07in 0; } .hero > div + div { border-left: .6pt solid var(--rule); padding-left: .12in; }
+  .cap { font: 6.8pt/1.35 'JetBrains Mono', monospace; color: var(--muted); }
+  .fig { width: 100%; border: .6pt solid var(--rule); display: block; }
+  .note { border-left: 2.4pt solid var(--coral); padding: .03in 0 .03in .1in; margin: .06in 0; background: linear-gradient(90deg, #c2451f12, transparent 70%); }
+  .foot { position: absolute; left: .55in; right: .55in; bottom: .32in; border-top: .6pt solid var(--rule); padding-top: .06in;
+    font: 6.6pt/1.45 'JetBrains Mono', monospace; color: var(--muted); display: flex; justify-content: space-between; gap: .2in; }
+  .sec { margin-bottom: .1in; }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="kick">Project description · An explainable-AI laboratory for chest radiographs</div>
+  <h1>XRay<em>Lens</em> AI</h1>
+  <p class="dek">A pneumonia classifier gives you an answer. XRayLens shows how it got there, how far to trust it, and where it breaks.</p>
+  <div class="stamp">Research &amp; education only<br>Not for diagnosis</div>
+</div>
+
+<div class="grid">
+<div>
+  <div class="sec">
+    <h2><span>01</span> Problem</h2>
+    <p>Medical-imaging AI is often presented as one impressive accuracy number. That number can come from testing a
+    model on images it was trained on. Saliency heatmaps then look convincing even when the model relies on text
+    markers or image borders. Students, clinicians-in-training and the public rarely get a way to <b>question</b> a
+    model's output.</p>
+  </div>
+  <div class="sec">
+    <h2><span>02</span> Solution</h2>
+    <p>XRayLens is an interactive lab built around a real, publicly released ResNet-50 pneumonia classifier. It turns
+    each prediction into a four-step investigation, and it treats the evaluation as a product feature, not a footnote.</p>
+    <ul>
+      <li><b>Choose</b> from 8 teaching cases picked by fixed rules from the evaluation, or upload PNG/JPEG/DICOM.</li>
+      <li><b>Read</b> the label, both scores, logit margin and saturation, alongside how 400 external adult images scored.</li>
+      <li><b>Explain</b> with Grad-CAM for either class. Heat on lungs, image frame and padding is always shown against
+      area share. A live <b>randomisation sanity check</b> (Adebayo et al. 2018) shows whether the map depends on the learned weights.</li>
+      <li><b>Stress-test</b> with 8 anatomy-preserving edits (crop, noise, burned-in marker, inversion…), re-scored live.</li>
+      <li><b>Reliability dashboard</b>: leakage comparison, live threshold explorer, ROC, calibration, robustness, limitations.</li>
+    </ul>
+  </div>
+  <div class="sec">
+    <h2><span>03</span> Technical approach</h2>
+    <p>Python 3.12 · PyTorch · Streamlit · scikit-learn · pydicom, plus a static web build running the same model in the browser with ONNX Runtime Web (bit-exact Pillow preprocessing, scores within 5×10⁻⁶ of PyTorch). Model: <i>Purino/resnet50-chest-xray-pneumonia</i>,
+    pinned to a Hub commit, with preprocessing <b>tested for exact parity</b> with the model card's reference code. Grad-CAM is
+    implemented from scratch with hooks on <code>layer4</code> and back-propagates the <b>logit difference</b>, because this
+    model's softmax saturates and softmax gradients vanish. 20 automated tests cover preprocessing, input handling,
+    Grad-CAM properties and metric correctness. Every dataset is pinned and sampled with a fixed seed.</p>
+  </div>
+</div>
+
+<div>
+  <div class="sec">
+    <h2><span>04</span> Evaluation: 1,462 images, 4 cohorts</h2>
+    <div class="hero">
+      <div><div class="cap">Kermany test · n=624 · seen in training</div><div class="big"><span class="strike">1.000</span> <span style="font-size:13pt">AUC</span></div></div>
+      <div><div class="cap">RSNA adults · external · n=400</div><div class="big" style="color:var(--coral)">38.5% <span style="font-size:12pt">specificity</span></div></div>
+    </div>
+    <table>
+      <tr><th>Finding</th><th>Measured</th></tr>
+      <tr><td>RSNA sensitivity / specificity</td><td>99.5% (97.2–99.9) / 38.5% (32.0–45.4)</td></tr>
+      <tr><td>RSNA AUC (bootstrap 95% CI)</td><td>0.913 (0.883–0.939)</td></tr>
+      <tr><td>Normal adults called pneumonia</td><td>RSNA 62% · Montgomery 53% · Shenzhen 20%</td></tr>
+      <tr><td>Calibration (RSNA, ECE)</td><td>0.31; 76% of outputs &lt;0.001 or &gt;0.999</td></tr>
+      <tr><td>Burned-in marker flips (n=838)</td><td>91 → PNEUMONIA · 0 → NORMAL</td></tr>
+      <tr><td>Grad-CAM in lungs (Montgomery masks)</td><td>27% of heat on 21% of pixels (×1.24)</td></tr>
+    </table>
+    <img class="fig" src="../assets/demo_screenshots/03_gradcam.png" alt="Grad-CAM peak on a burned-in PA ERECT marker">
+    <div class="cap" style="margin-top:.03in">A healthy adult scored 0.997 PNEUMONIA. The Grad-CAM peak sits on the “PA ERECT” marker, and cropping
+    the frame away turns the call to NORMAL (0.10).</div>
+  </div>
+  <div class="sec">
+    <h2><span>05</span> Limitations</h2>
+    <p>No valid in-distribution test exists, because the published weights were refit on every Kermany image. External cohorts are adults,
+    so population shift and generalisation error are confounded. RSNA “lung opacity” is not confirmed pneumonia. Samples are
+    modest, so all metrics carry 95% CIs. Grad-CAM is a coarse view of one layer. <b>Not clinically validated, and not a medical device.</b></p>
+  </div>
+</div>
+</div>
+
+<div class="foot">
+  <span>Live demo: xraylens-ai.vercel.app (runs in your browser) · Repository: [add GitHub link]</span>
+  <span>Data: Kermany 2018 (CC BY 4.0) · RSNA 2018 · NLM Montgomery &amp; Shenzhen · Code: MIT</span>
+</div>
+</body>
+</html>

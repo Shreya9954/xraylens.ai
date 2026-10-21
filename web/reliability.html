@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XRayLens Reliability</title>
+<meta name="description" content="How reliable is a public pneumonia classifier? Leakage, external adult cohorts, calibration, Grad-CAM localisation and robustness, every number reproducible.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0f12'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23ffb547' stroke-width='3'/%3E%3Cpath d='M16 7a9 9 0 0 1 0 18z' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<script src="https://cdn.jsdelivr.net/npm/vega@5.30.0/build/vega.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.21.0/build/vega-lite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.26.0/build/vega-embed.min.js"></script>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <a class="brand" href="./">XRayLens</a>
+  <a href="./">Examine</a>
+  <a href="reliability.html" aria-current="page">Reliability</a>
+  <a href="provenance.html">Provenance</a>
+</nav>
+<div class="runhead" aria-hidden="true">XRAYLENS · RESEARCH PROTOTYPE · NOT A DIAGNOSTIC DEVICE</div>
+
+<main class="wrap">
+  <header class="mast">
+    <div class="kicker" id="kick">Reliability report</div>
+    <h1 class="title sm">Two numbers,<br><em>one model</em></h1>
+    <p class="dek">The same weights look perfect or badly miscalibrated, depending on which images you test them on.</p>
+  </header>
+  <div class="hero" id="hero"></div>
+
+  <section>
+    <div class="sec"><div class="num">01</div><h2>The leakage trap</h2>
+      <p class="sub">The easiest way to make a medical model look good is to test it on data it has already seen.</p></div>
+    <div class="cols c-6-5">
+      <div>
+        <p>The model card says the final weights were <i>“retrained on all cleaned images from the original train, test, and validation folders”</i> and that <i>“it has no independent test evaluation.”</i> So the 624-image Kermany test folder, the benchmark most tutorials report, is <b>training data</b> for this model. We scored it anyway, to show how misleading that number would be.</p>
+        <p>Kermany images are all from children aged one to five at a single hospital. We could not find a second pediatric pneumonia set with a compatible licence in time, so our external tests use <b>adult</b> radiographs. That measures generalisation and population shift together, and we report it that way.</p>
+      </div>
+      <div><div id="sat"></div><p class="fig">Near-0 or near-1 outputs on unfamiliar adult images show overconfidence, not certainty. The model card itself warns that softmax outputs are not calibrated probabilities.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">02</div><h2>Move the threshold</h2>
+      <p class="sub">The shipped threshold is 0.5. Because outputs pile up near 1, useful thresholds sit extremely close to 1. Every number below is recomputed live from per-image scores.</p></div>
+    <span class="label">Decision threshold on the PNEUMONIA score · <span class="range-val" id="thr-val"></span></span>
+    <input type="range" id="thr" min="0" step="1" value="0" aria-label="Decision threshold">
+    <div class="cols c-5-6" style="margin-top:1.2rem">
+      <div><div class="chart" id="cm"></div><div class="fig" id="cm-cap"></div></div>
+      <div><div id="thr-stats"></div><div class="chart" id="flags" style="margin-top:1rem"></div></div>
+    </div>
+    <div class="cols c-5-6" style="margin-top:1.4rem">
+      <div class="chart" id="roc"></div>
+      <div id="roc-note" style="padding-top:2.4rem"></div>
+    </div>
+    <div class="chart" id="strip" style="margin-top:1.4rem"></div>
+    <div id="strip-note"></div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">03</div><h2>Is a score of 0.9 really 90%?</h2>
+      <p class="sub">A calibrated model’s scores of 0.9 come true about 90% of the time. Bins below show how often RSNA images in each score band actually had lung opacity.</p></div>
+    <div class="cols c-6-4"><div class="chart" id="cal"></div><div><div id="cal-stats"></div>
+      <p class="fig">Most images land in the top bin, where the model claims near certainty and is right far less often. Treat the score as a ranking, not a probability.</p></div></div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">04</div><h2>Can the heatmaps be trusted?</h2>
+      <p class="sub">Two checks. First, Montgomery radiographs come with radiologist-drawn lung masks, so we measure Grad-CAM mass inside the lungs against the lungs’ share of the image. Second, a randomisation test checks that the maps depend on the learned weights at all.</p></div>
+    <div class="cols c-4-6"><div id="lung-stats"></div><div class="chart" id="lung-hist"></div></div>
+    <div class="cols c-4-6" style="margin-top:1.4rem"><div id="rand-stats"></div><div class="chart" id="rand-chart"></div></div>
+    <div id="att-note"></div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">05</div><h2>Robustness to edits that shouldn’t matter</h2>
+      <p class="sub" id="rob-sub"></p></div>
+    <div class="chart" id="rob"></div>
+    <div id="rob-note"></div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">06</div><h2>Does your browser run the same model?</h2>
+      <p class="sub">This site runs the network on your device with ONNX Runtime Web, reading the original weights from Hugging Face. We checked it against the PyTorch pipeline used for every number on this page.</p></div>
+    <div id="parity"></div>
+  </section>
+
+  <section>
+    <div class="sec"><div class="num">07</div><h2>What this evaluation cannot tell you</h2></div>
+    <ul>
+      <li><b>No in-distribution test exists.</b> Every Kermany image was used to train the final weights. We can't measure pediatric performance honestly with this checkpoint.</li>
+      <li><b>External cohorts are adults.</b> Poor specificity on RSNA, Montgomery and Shenzhen mixes <i>population shift</i> (children → adults) with genuine generalisation error. We can't separate them.</li>
+      <li><b>Labels differ.</b> RSNA “Lung Opacity” is a bounding-box finding suggestive of pneumonia, not a confirmed diagnosis. Montgomery and Shenzhen labels are for tuberculosis, so their normals are the cleanest negatives we have.</li>
+      <li><b>Samples are modest.</b> 200 per RSNA class, 138 Montgomery and 100 Shenzhen images. Confidence intervals are shown and are wide.</li>
+      <li><b>Thresholds chosen on these images are optimistic.</b> The specificity-targeted thresholds above were picked on the same 400 RSNA images they are reported on.</li>
+      <li><b>Grad-CAM is one view.</b> It summarises one layer at 10×10 resolution. Passing the randomisation test shows the maps depend on the weights, not that they capture the model’s full reasoning.</li>
+      <li><b>Nothing here is clinical validation.</b> This is a teaching instrument for reading model behaviour critically.</li>
+    </ul>
+    <details><summary>Table view · all headline metrics</summary><div class="inner table-wrap" id="tables"></div></details>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</main>
+<script type="module" src="js/reliability.js"></script>
+</body>
+</html>
